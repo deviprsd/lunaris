@@ -7,8 +7,8 @@ defmodule LunarisWeb.Router do
 
   scope "/api", LunarisWeb do
     pipe_through :api
-    resources "/customers", CustomerController, except: [:new, :edit]
-    resources "/orders", OrderController, except: [:new, :edit]
+    resources "/customers", CustomerController, only: [:new, :show]
+    resources "/orders", OrderController, only: [:new, :show]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

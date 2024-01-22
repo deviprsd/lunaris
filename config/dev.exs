@@ -2,7 +2,7 @@ import Config
 
 # Configure your database
 config :lunaris, Lunaris.Repo,
-  database: Path.expand("../lunaris_dev.db", Path.dirname(__ENV__.file)),
+  database: Path.expand("../lunaris_dev.sqlite", Path.dirname(__ENV__.file)),
   pool_size: 5,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true

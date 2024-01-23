@@ -6,11 +6,6 @@ defmodule LunarisWeb.CustomerController do
 
   action_fallback LunarisWeb.FallbackController
 
-  def index(conn, _params) do
-    customers = Customers.list_customers()
-    render(conn, :index, customers: customers)
-  end
-
   def create(conn, %{"customer" => customer_params}) do
     with {:ok, %Customer{} = customer} <- Customers.create_customer(customer_params) do
       conn
@@ -25,19 +20,8 @@ defmodule LunarisWeb.CustomerController do
     render(conn, :show, customer: customer)
   end
 
-  def update(conn, %{"id" => id, "customer" => customer_params}) do
-    customer = Customers.get_customer!(id)
-
-    with {:ok, %Customer{} = customer} <- Customers.update_customer(customer, customer_params) do
-      render(conn, :show, customer: customer)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    customer = Customers.get_customer!(id)
-
-    with {:ok, %Customer{}} <- Customers.delete_customer(customer) do
-      send_resp(conn, :no_content, "")
-    end
+  def search(conn, search_params) do
+    customer = Customers.search_customer!(search_params)
+    render(conn, :show, customer: customer)
   end
 end

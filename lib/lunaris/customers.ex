@@ -9,19 +9,6 @@ defmodule Lunaris.Customers do
   alias Lunaris.Customers.Customer
 
   @doc """
-  Returns the list of customers.
-
-  ## Examples
-
-      iex> list_customers()
-      [%Customer{}, ...]
-
-  """
-  def list_customers do
-    Repo.all(Customer)
-  end
-
-  @doc """
   Gets a single customer.
 
   Raises `Ecto.NoResultsError` if the Customer does not exist.
@@ -36,6 +23,26 @@ defmodule Lunaris.Customers do
 
   """
   def get_customer!(id), do: Repo.get!(Customer, id)
+
+  def search_customer!(query) do
+    changeset =
+      %Customer{}
+      |> Customer.changeset(query)
+
+    if changeset.valid? do
+      changes = changeset.changes
+      email = Map.get(changes, :email, nil)
+      phone = Map.get(changes, :phone, nil)
+      email_or_phone = if email, do: email, else: phone
+
+      Repo.one!(
+        from c in Customer,
+          where: c.email == ^email_or_phone or c.phone == ^email_or_phone
+      )
+    else
+      raise Ecto.InvalidChangesetError, action: :search, changeset: changeset
+    end
+  end
 
   @doc """
   Creates a customer.
@@ -53,40 +60,6 @@ defmodule Lunaris.Customers do
     %Customer{}
     |> Customer.changeset(attrs)
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a customer.
-
-  ## Examples
-
-      iex> update_customer(customer, %{field: new_value})
-      {:ok, %Customer{}}
-
-      iex> update_customer(customer, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_customer(%Customer{} = customer, attrs) do
-    customer
-    |> Customer.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a customer.
-
-  ## Examples
-
-      iex> delete_customer(customer)
-      {:ok, %Customer{}}
-
-      iex> delete_customer(customer)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_customer(%Customer{} = customer) do
-    Repo.delete(customer)
   end
 
   @doc """

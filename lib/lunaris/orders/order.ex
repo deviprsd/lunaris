@@ -5,7 +5,7 @@ defmodule Lunaris.Orders.Order do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "orders" do
-    field :currency, :string
+    field :currency, :string, default: "JPY"
     field :paid, :decimal
     field :point_percentage, :decimal, default: 0.01
     belongs_to :customer, Lunaris.Customers.Customer

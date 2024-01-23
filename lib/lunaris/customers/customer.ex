@@ -17,6 +17,19 @@ defmodule Lunaris.Customers.Customer do
   def changeset(customer, attrs) do
     customer
     |> cast(attrs, [:email, :phone, :balance])
-    |> validate_required([:email, :phone])
+    |> validate_required_inclusion([:email, :phone])
+  end
+
+  defp validate_required_inclusion(changeset, fields) do
+    if Enum.any?(fields, &present?(changeset, &1)) do
+      changeset
+    else
+      add_error(changeset, hd(fields), "One of these fields must be present: #{inspect(fields)}")
+    end
+  end
+
+  defp present?(changeset, field) do
+    value = get_field(changeset, field)
+    value && value != ""
   end
 end

@@ -15,14 +15,10 @@ defmodule Lunaris.Orders.Order do
 
   @doc false
   def changeset(%Lunaris.Orders.Order{} = order, attrs) do
-    IO.inspect(
-      order
-      |> cast(attrs, [:id, :paid, :currency, :point_percentage, :customer_id])
-    )
-
     order
     |> cast(attrs, [:id, :paid, :currency, :point_percentage, :customer_id])
     |> validate_required([:paid, :currency, :customer_id])
+    |> validate_number(:point_percentage, greater_than: 0)
     |> cast_assoc(:customer)
   end
 end

@@ -14,6 +14,7 @@ defmodule Lunaris.Orders.NewOrderRequest do
     order
     |> cast(attrs, [:id, :paid, :currency, :point_percentage])
     |> validate_required([:paid])
+    |> validate_number(:point_percentage, greater_than: 0)
   end
 end
 

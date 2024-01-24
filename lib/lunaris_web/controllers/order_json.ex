@@ -20,7 +20,8 @@ defmodule LunarisWeb.OrderJSON do
       id: order.id,
       paid: order.paid,
       currency: order.currency,
-      point_percentage: order.point_percentage
+      point_percentage: order.point_percentage,
+      customer: LunarisWeb.CustomerJSON.data(order.customer)
     }
   end
 end

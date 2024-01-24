@@ -5,11 +5,12 @@ defmodule LunarisWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", LunarisWeb do
+  scope "/", LunarisWeb do
     pipe_through :api
     get "/customers/search", CustomerController, :search
     resources "/customers", CustomerController, only: [:create, :show]
-    resources "/orders", OrderController, only: [:new, :show]
+    post "/orders/new", OrderController, :new
+    resources "/orders", OrderController, only: [:show]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

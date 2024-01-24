@@ -15,7 +15,7 @@ defmodule LunarisWeb.CustomerJSON do
     %{data: data(customer)}
   end
 
-  defp data(%Customer{} = customer) do
+  def data(%Customer{} = customer) do
     %{
       id: customer.id,
       email: customer.email,

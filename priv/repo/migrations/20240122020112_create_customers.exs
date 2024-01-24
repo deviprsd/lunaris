@@ -10,5 +10,7 @@ defmodule Lunaris.Repo.Migrations.CreateCustomers do
 
       timestamps(type: :utc_datetime)
     end
+
+    create unique_index(:customers, [:email, :phone], name: :email_phone_identity)
   end
 end

@@ -4,6 +4,7 @@ defmodule Lunaris.Customers do
   """
 
   import Ecto.Query, warn: false
+  alias Lunaris.Customers.CustomerRequest
   alias Lunaris.Repo
 
   alias Lunaris.Customers.Customer
@@ -26,8 +27,8 @@ defmodule Lunaris.Customers do
 
   def search_customer!(query) do
     changeset =
-      %Customer{}
-      |> Customer.changeset(query)
+      %CustomerRequest{}
+      |> CustomerRequest.changeset(query)
 
     if changeset.valid? do
       changes = changeset.changes
@@ -58,8 +59,27 @@ defmodule Lunaris.Customers do
   """
   def create_customer(attrs \\ %{}) do
     %Customer{}
-    |> Customer.changeset(attrs)
+    |> change_customer(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Updates a balance.
+
+  ## Examples
+
+      iex> update_order(order, %{field: new_value})
+      {:ok, %Order{}}
+
+      iex> update_order(order, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_balance(customer_id, points_awarded) do
+    Customer
+    |> where(id: ^customer_id)
+    |> update(inc: [balance: ^points_awarded])
+    |> Repo.update_all([])
   end
 
   @doc """

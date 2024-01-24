@@ -1,43 +1,42 @@
 defmodule LunarisWeb.OrderController do
   use LunarisWeb, :controller
 
+  alias Lunaris.Repo
+  alias Lunaris.Customers
+  alias Lunaris.Orders.NewOrder
   alias Lunaris.Orders
-  alias Lunaris.Orders.Order
 
   action_fallback LunarisWeb.FallbackController
 
-  def index(conn, _params) do
-    orders = Orders.list_orders()
-    render(conn, :index, orders: orders)
-  end
+  def new(conn, new_order_request) do
+    changeset =
+      %NewOrder{}
+      |> NewOrder.changeset(new_order_request)
 
-  def create(conn, %{"order" => order_params}) do
-    with {:ok, %Order{} = order} <- Orders.create_order(order_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/orders/#{order}")
-      |> render(:show, order: order)
+    if changeset.valid? do
+      new_order = Ecto.Changeset.apply_changes(changeset)
+      customer_search = NewOrder.to_customer_search(new_order)
+
+      customer = Customers.search_customer!(customer_search)
+      {order, points_awarded} = NewOrder.to_order_balance(new_order, customer.id)
+
+      with {:ok, order_inserted} <-
+             Repo.transaction(fn ->
+               Customers.update_balance(customer.id, points_awarded)
+               Orders.create_order!(order)
+             end) do
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", ~p"/orders/#{order_inserted}")
+        |> render(:show, order: order_inserted)
+      end
+    else
+      {:error, changeset}
     end
   end
 
   def show(conn, %{"id" => id}) do
     order = Orders.get_order!(id)
     render(conn, :show, order: order)
-  end
-
-  def update(conn, %{"id" => id, "order" => order_params}) do
-    order = Orders.get_order!(id)
-
-    with {:ok, %Order{} = order} <- Orders.update_order(order, order_params) do
-      render(conn, :show, order: order)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    order = Orders.get_order!(id)
-
-    with {:ok, %Order{}} <- Orders.delete_order(order) do
-      send_resp(conn, :no_content, "")
-    end
   end
 end

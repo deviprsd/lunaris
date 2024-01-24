@@ -5,7 +5,7 @@ defmodule Lunaris.Orders.NewOrderRequest do
   @primary_key false
   embedded_schema do
     field :id, :string
-    field :paid, :integer
+    field :paid, :decimal
     field :currency, :string, default: "jpy"
     field :point_percentage, :decimal, default: Decimal.new("0.01")
   end
@@ -13,7 +13,7 @@ defmodule Lunaris.Orders.NewOrderRequest do
   def changeset(%Lunaris.Orders.NewOrderRequest{} = order, attrs \\ %{}) do
     order
     |> cast(attrs, [:id, :paid, :currency, :point_percentage])
-    |> validate_required([:id, :paid])
+    |> validate_required([:paid])
   end
 end
 

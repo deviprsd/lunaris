@@ -6,14 +6,15 @@ defmodule LunarisWeb.OrderControllerTest do
   alias Lunaris.Orders.Order
 
   @create_attrs %{
-    currency: "some currency",
-    paid: "120.5",
-    point_percentage: "120.5"
-  }
-  @update_attrs %{
-    currency: "some updated currency",
-    paid: "456.7",
-    point_percentage: "456.7"
+    order: %{
+      paid: 10000,
+      currency: "jpy",
+      point_percentage: 0.05
+    },
+    customer: %{
+      email: "example@lunaris.jp",
+      phone: "1234567890"
+    }
   }
   @invalid_attrs %{currency: nil, paid: nil, point_percentage: nil}
 
@@ -21,67 +22,33 @@ defmodule LunarisWeb.OrderControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all orders", %{conn: conn} do
-      conn = get(conn, ~p"/api/orders")
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
-
   describe "create order" do
     test "renders order when data is valid", %{conn: conn} do
-      conn = post(conn, ~p"/api/orders", order: @create_attrs)
+      conn = post(conn, ~p"/customers", customer: @create_attrs.customer)
+      %{"id" => customer_id} = json_response(conn, 201)["data"]
+
+      conn = post(conn, ~p"/orders/new", @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, ~p"/api/orders/#{id}")
+      conn = get(conn, ~p"/orders/#{id}")
 
       assert %{
                "id" => ^id,
-               "currency" => "some currency",
-               "paid" => "120.5",
-               "point_percentage" => "120.5"
+               "currency" => "jpy",
+               "paid" => "10000",
+               "point_percentage" => "0.05",
+               "customer" => %{
+                 "id" => ^customer_id,
+                 "balance" => "500",
+                 "email" => "example@lunaris.jp",
+                 "phone" => "1234567890"
+               }
              } = json_response(conn, 200)["data"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/api/orders", order: @invalid_attrs)
+      conn = post(conn, ~p"/orders/new", order: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "update order" do
-    setup [:create_order]
-
-    test "renders order when data is valid", %{conn: conn, order: %Order{id: id} = order} do
-      conn = put(conn, ~p"/api/orders/#{order}", order: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, ~p"/api/orders/#{id}")
-
-      assert %{
-               "id" => ^id,
-               "currency" => "some updated currency",
-               "paid" => "456.7",
-               "point_percentage" => "456.7"
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, order: order} do
-      conn = put(conn, ~p"/api/orders/#{order}", order: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete order" do
-    setup [:create_order]
-
-    test "deletes chosen order", %{conn: conn, order: order} do
-      conn = delete(conn, ~p"/api/orders/#{order}")
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/orders/#{order}")
-      end
     end
   end
 

@@ -6,14 +6,8 @@ defmodule LunarisWeb.CustomerControllerTest do
   alias Lunaris.Customers.Customer
 
   @create_attrs %{
-    balance: "120.5",
-    email: "some email",
-    phone: "some phone"
-  }
-  @update_attrs %{
-    balance: "456.7",
-    email: "some updated email",
-    phone: "some updated phone"
+    email: "example@lunaris.jp",
+    phone: "1234567890"
   }
   @invalid_attrs %{balance: nil, email: nil, phone: nil}
 
@@ -21,67 +15,24 @@ defmodule LunarisWeb.CustomerControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all customers", %{conn: conn} do
-      conn = get(conn, ~p"/api/customers")
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
-
   describe "create customer" do
     test "renders customer when data is valid", %{conn: conn} do
-      conn = post(conn, ~p"/api/customers", customer: @create_attrs)
+      conn = post(conn, ~p"/customers", customer: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, ~p"/api/customers/#{id}")
+      conn = get(conn, ~p"/customers/#{id}")
 
       assert %{
                "id" => ^id,
-               "balance" => "120.5",
-               "email" => "some email",
-               "phone" => "some phone"
+               "balance" => "0",
+               "email" => "example@lunaris.jp",
+               "phone" => "1234567890"
              } = json_response(conn, 200)["data"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/api/customers", customer: @invalid_attrs)
+      conn = post(conn, ~p"/customers", customer: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "update customer" do
-    setup [:create_customer]
-
-    test "renders customer when data is valid", %{conn: conn, customer: %Customer{id: id} = customer} do
-      conn = put(conn, ~p"/api/customers/#{customer}", customer: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, ~p"/api/customers/#{id}")
-
-      assert %{
-               "id" => ^id,
-               "balance" => "456.7",
-               "email" => "some updated email",
-               "phone" => "some updated phone"
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, customer: customer} do
-      conn = put(conn, ~p"/api/customers/#{customer}", customer: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete customer" do
-    setup [:create_customer]
-
-    test "deletes chosen customer", %{conn: conn, customer: customer} do
-      conn = delete(conn, ~p"/api/customers/#{customer}")
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/customers/#{customer}")
-      end
     end
   end
 

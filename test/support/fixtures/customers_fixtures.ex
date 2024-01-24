@@ -7,13 +7,12 @@ defmodule Lunaris.CustomersFixtures do
   @doc """
   Generate a customer.
   """
-  def customer_fixture(attrs \\ %{}) do
+  def customer_fixture(attrs \\ %{phone: "1234567890"}) do
     {:ok, customer} =
       attrs
       |> Enum.into(%{
         balance: "120.5",
-        email: "some email",
-        phone: "some phone"
+        email: "example@lunaris.jp"
       })
       |> Lunaris.Customers.create_customer()
 

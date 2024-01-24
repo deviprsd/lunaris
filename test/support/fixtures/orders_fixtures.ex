@@ -8,15 +8,12 @@ defmodule Lunaris.OrdersFixtures do
   Generate a order.
   """
   def order_fixture(attrs \\ %{}) do
-    {:ok, order} =
-      attrs
-      |> Enum.into(%{
-        currency: "some currency",
-        paid: "120.5",
-        point_percentage: "120.5"
-      })
-      |> Lunaris.Orders.create_order()
-
-    order
+    attrs
+    |> Enum.into(%{
+      currency: "some currency",
+      paid: "120.5",
+      point_percentage: "120.5"
+    })
+    |> Lunaris.Orders.create_order!()
   end
 end

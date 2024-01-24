@@ -34,12 +34,20 @@ defmodule Lunaris.Customers do
       changes = changeset.changes
       email = Map.get(changes, :email, nil)
       phone = Map.get(changes, :phone, nil)
-      email_or_phone = if email, do: email, else: phone
 
-      Repo.one!(
-        from c in Customer,
-          where: c.email == ^email_or_phone or c.phone == ^email_or_phone
-      )
+      if email && phone do
+        Repo.one!(
+          from c in Customer,
+            where: c.email == ^email and c.phone == ^phone
+        )
+      else
+        email_or_phone = if email, do: email, else: phone
+
+        Repo.one!(
+          from c in Customer,
+            where: c.email == ^email_or_phone or c.phone == ^email_or_phone
+        )
+      end
     else
       raise Ecto.InvalidChangesetError, action: :search, changeset: changeset
     end

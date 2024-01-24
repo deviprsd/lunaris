@@ -40,3 +40,69 @@ curl -X POST http://localhost:4000/orders/new
 
 - The client is in control of the balance (positive/negative) and points awarded and the api only updates the state
 - Customer can have negative balance? Currently this is possible but can be validate in the service
+
+#### Additional context after discussion
+
+- Rewarding negative points.
+- Under the assumption that the client will always provide a valid email format and number format. I have other important validations, like at-least one of email or phone number has been added. I can add them to cover all bases, the focus was just more on the balance update logic and they can be gated with CORS and other security protocols available to only allow approved clients.
+- For negative balance my thought process is that the client is in control of the interactions so the client is just a state updater. So if client asks to create a new order with paid 10000 jpy, to cancel it should send a new order -10000 jpy. As the requirement doesn't ask for additional constraints, this seems like the simplest way to just do purchase and cancel. Here I can make a case for an specific update workflow because the client made some mistake by providing wrong paid value and now the balance is negative. This workflow can recalculate the balance and update it. But I believe this workflow is out of the scope, it is also easier to detect inconsistencies for this logic.
+
+## Examples
+
+#### DTO
+
+```bash
+curl --request POST \
+  --url http://localhost:4000/orders/new \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"order": {
+		"id": "b4d9bb30-8972-4d05-aa5b-39aee91b64ed", // optional
+		"paid": 10000.0,
+		"currency": "jpy", // optional, default jpy
+		"point_percentage": 0.05 // optional, default 0.01
+	},
+	"customer": {
+		"email": "example@lunaris.jp",
+		"phone": null
+	}
+}'
+```
+
+#### Purchase
+
+```bash
+curl --request POST \
+  --url http://localhost:4000/orders/new \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"order": {
+		"paid": 10000.0,
+		"currency": "jpy",
+		"point_percentage": 0.05
+	},
+	"customer": {
+		"email": "example@lunaris.jp",
+		"phone": null
+	}
+}'
+```
+
+#### Cancel
+
+```bash
+curl --request POST \
+  --url http://localhost:4000/orders/new \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"order": {
+		"paid": -10000.0,
+		"currency": "jpy",
+		"point_percentage": 0.05
+	},
+	"customer": {
+		"email": "example@lunaris.jp",
+		"phone": null
+	}
+}'
+```

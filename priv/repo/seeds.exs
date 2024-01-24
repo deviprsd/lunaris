@@ -11,6 +11,12 @@
 # and so on) as they will fail if something goes wrong.
 
 Lunaris.Repo.insert(%Lunaris.Customers.Customer{
+  phone: "",
+  email: "example@lunaris.jp",
+  balance: 0.0
+})
+
+Lunaris.Repo.insert(%Lunaris.Customers.Customer{
   email: "deviprsd21@yahoo.com",
   phone: "",
   balance: 0.0
